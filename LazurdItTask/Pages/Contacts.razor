@@ -4,13 +4,13 @@
 <button class="btn btn-primary" @onclick="ShowAddModal">Add Contact</button>
 
 <table class="table mt-3">
-    <thead>
+    <thead class="table-header">
         <tr>
-            <th>Id</th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Email</th>
-            <th>Phone</th>
+            <th><button @onclick='() => SortContacts("Id")'>Id @GetSortDirection("Id")</button></th>
+            <th><button @onclick='() => SortContacts("FirstName")'>First Name @GetSortDirection("FirstName")</button></th>
+            <th><button @onclick='() => SortContacts("LastName")'>Last Name @GetSortDirection("LastName")</button></th>
+            <th><button @onclick='() => SortContacts("Email")'>Email @GetSortDirection("Email")</button></th>
+            <th><button @onclick='() => SortContacts("PhoneNumber")'>Phone @GetSortDirection("PhoneNumber")</button></th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -41,6 +41,8 @@
     private List<Contact> contacts = new();
     private Contact editingContact = new();
     private bool showModal = false;
+    private string sortColumn = "Id";
+    private bool ascending = true;
 
     protected override void OnInitialized()
     {
@@ -59,14 +61,81 @@
         showModal = true;
     }
 
-    void Delete(Contact contact)
+    async void Delete(Contact contact)
     {
-        ContactService.Delete(contact.Id);
-        contacts.Remove(contact);
+        var confirmed = await SweetAlertInterop.SweetAlertConfirm(JsRuntime, "Are you sure you want to delete this contact?");
+        if (confirmed)
+        {
+            ContactService.Delete(contact.Id);
+            contacts.Remove(contact);
+            StateHasChanged();
+        }
     }
 
     void HandleClose()
     {
         showModal = false;
+    }
+
+    void SortContacts(string columnName)
+    {
+        if (sortColumn != columnName)
+        {
+            sortColumn = columnName;
+            ascending = true;
+        }
+        else
+        {
+            ascending = !ascending;
+        }
+
+        switch (sortColumn)
+        {
+            case "Id":
+                contacts = ascending ? contacts.OrderBy(c => c.Id).ToList() : contacts.OrderByDescending(c => c.Id).ToList();
+                break;
+            case "FirstName":
+                contacts = ascending ? contacts.OrderBy(c => c.FirstName).ToList() : contacts.OrderByDescending(c => c.FirstName).ToList();
+                break;
+            case "LastName":
+                contacts = ascending ? contacts.OrderBy(c => c.LastName).ToList() : contacts.OrderByDescending(c => c.LastName).ToList();
+                break;
+            case "Email":
+                contacts = ascending ? contacts.OrderBy(c => c.Email).ToList() : contacts.OrderByDescending(c => c.Email).ToList();
+                break;
+            case "PhoneNumber":
+                contacts = ascending ? contacts.OrderBy(c => c.PhoneNumber).ToList() : contacts.OrderByDescending(c => c.PhoneNumber).ToList();
+                break;
+            default:
+                break;
+        }
+    }
+
+    public static class SweetAlertInterop
+    {
+        public static async ValueTask<bool> SweetAlertConfirm(IJSRuntime jsRuntime, string message)
+        {
+            try
+            {
+                var x = await jsRuntime.InvokeAsync<bool>("sweetAlertConfirm", message);
+                return x;
+            }
+            catch (Exception ex)
+            {
+                var e = ex;
+            }
+           return false;
+       
+        }
+    }
+
+
+    string GetSortDirection(string columnName)
+    {
+        if (sortColumn == columnName)
+        {
+            return ascending ? "▲" : "▼";
+        }
+        return "";
     }
 }
