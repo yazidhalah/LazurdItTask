@@ -1,0 +1,72 @@
+﻿@page "/contacts"
+
+<h1>Contacts</h1>
+<button class="btn btn-primary" @onclick="ShowAddModal">Add Contact</button>
+
+<table class="table mt-3">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var contact in contacts)
+        {
+            <tr>
+                <td>@contact.Id</td>
+                <td>@contact.FirstName</td>
+                <td>@contact.LastName</td>
+                <td>@contact.Email</td>
+                <td>@contact.PhoneNumber</td>
+                <td>
+                    <button class="btn btn-secondary" @onclick="() => ShowEditModal(contact)">Edit</button>
+                    <button class="btn btn-danger" @onclick="() => Delete(contact)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (showModal)
+{
+    <ContactForm Contact="editingContact" OnClose="HandleClose" />
+}
+
+@code {
+    private List<Contact> contacts = new();
+    private Contact editingContact = new();
+    private bool showModal = false;
+
+    protected override void OnInitialized()
+    {
+        contacts = ContactService.GetAll();
+    }
+
+    void ShowAddModal()
+    {
+        editingContact = new Contact();
+        showModal = true;
+    }
+
+    void ShowEditModal(Contact contact)
+    {
+        editingContact = contact;
+        showModal = true;
+    }
+
+    void Delete(Contact contact)
+    {
+        ContactService.Delete(contact.Id);
+        contacts.Remove(contact);
+    }
+
+    void HandleClose()
+    {
+        showModal = false;
+    }
+}
