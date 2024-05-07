@@ -25,8 +25,17 @@ namespace LazurdItTask.Services
         }
         public void Add(Contact contact)
         {
-            contact.Id = nextId++;
-            contacts.Add(contact);
+            try
+            {
+                contact.Id = nextId++;
+                contacts.Add(contact);
+            }
+            catch (Exception ex)
+            {
+                var e = ex;
+                throw;
+            }
+          
         }
         public void Update(Contact contact)
         {

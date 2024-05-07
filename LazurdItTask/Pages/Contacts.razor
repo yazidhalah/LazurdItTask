@@ -75,6 +75,7 @@
     void HandleClose()
     {
         showModal = false;
+        StateHasChanged();
     }
 
     void SortContacts(string columnName)
@@ -92,19 +93,34 @@
         switch (sortColumn)
         {
             case "Id":
-                contacts = ascending ? contacts.OrderBy(c => c.Id).ToList() : contacts.OrderByDescending(c => c.Id).ToList();
+                if (ascending)
+                    contacts.Sort((x, y) => x.Id.CompareTo(y.Id));
+                else
+                    contacts.Sort((x, y) => y.Id.CompareTo(x.Id));
                 break;
             case "FirstName":
-                contacts = ascending ? contacts.OrderBy(c => c.FirstName).ToList() : contacts.OrderByDescending(c => c.FirstName).ToList();
+                if (ascending)
+                    contacts.Sort((x, y) => string.Compare(x.FirstName, y.FirstName));
+                else
+                    contacts.Sort((x, y) => string.Compare(y.FirstName, x.FirstName));
                 break;
             case "LastName":
-                contacts = ascending ? contacts.OrderBy(c => c.LastName).ToList() : contacts.OrderByDescending(c => c.LastName).ToList();
+                if (ascending)
+                    contacts.Sort((x, y) => string.Compare(x.LastName, y.LastName));
+                else
+                    contacts.Sort((x, y) => string.Compare(y.LastName, x.LastName));
                 break;
             case "Email":
-                contacts = ascending ? contacts.OrderBy(c => c.Email).ToList() : contacts.OrderByDescending(c => c.Email).ToList();
+                if (ascending)
+                    contacts.Sort((x, y) => string.Compare(x.Email, y.Email));
+                else
+                    contacts.Sort((x, y) => string.Compare(y.Email, x.Email));
                 break;
             case "PhoneNumber":
-                contacts = ascending ? contacts.OrderBy(c => c.PhoneNumber).ToList() : contacts.OrderByDescending(c => c.PhoneNumber).ToList();
+                if (ascending)
+                    contacts.Sort((x, y) => string.Compare(x.PhoneNumber, y.PhoneNumber));
+                else
+                    contacts.Sort((x, y) => string.Compare(y.PhoneNumber, x.PhoneNumber));
                 break;
             default:
                 break;
@@ -124,8 +140,8 @@
             {
                 var e = ex;
             }
-           return false;
-       
+            return false;
+
         }
     }
 
